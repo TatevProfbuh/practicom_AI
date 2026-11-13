@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Подойдёт ли ваша 1С · проверка</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Playfair+Display:wght@600&family=Cormorant+Garamond:ital,wght@1,500&display=swap">
+<style>
+:root{--milk:#F4EEE9;--paper:#FBF8F4;--ink:#2E2A28;--ink2:#5E544E;--ink3:#8A7F78;--blue:#7FAEC6;--blue-soft:#E3EEF3;--blue-deep:#3E6F88;--terra:#C56245;--terra-deep:#A64D34;--terra-soft:#F3E1D9;--line:#E2D8D0;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--milk);color:var(--ink);font-family:'Manrope',Arial,sans-serif;font-size:17px;line-height:1.55;padding:24px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.top{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.2em;font-weight:700}
+.top img{height:30px}
+.eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--terra-deep);margin:0}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:600;font-size:clamp(30px,6vw,44px);line-height:1.1;margin:0}
+.it{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;color:var(--terra)}
+.lead{color:var(--ink2);margin:0}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue);width:0;transition:width .3s}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.q{font-size:20px;font-weight:700;line-height:1.35;margin:0}
+.hint{font-size:15px;color:var(--ink2);margin:0}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{font:inherit;text-align:left;border:1px solid var(--line);background:var(--milk);border-radius:12px;padding:13px 16px;cursor:pointer;font-weight:600;color:var(--ink)}
+.opts button:hover{border-color:var(--blue)}
+.opts button:focus-visible,.btn:focus-visible{outline:2px solid var(--blue-deep);outline-offset:2px}
+.nav{display:flex;justify-content:space-between;font-size:14px;color:var(--ink3)}
+.nav button{font:inherit;background:none;border:0;color:var(--blue-deep);cursor:pointer;padding:0}
+.res{border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:12px}
+.res.ok{background:var(--blue-soft);border:1px solid var(--blue)}
+.res.maybe{background:var(--terra-soft);border:1px solid var(--terra)}
+.res h2{font-family:'Playfair Display',Georgia,serif;font-size:28px;line-height:1.15;margin:0}
+.res ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{text-decoration:none;font-weight:700;border-radius:999px;padding:13px 22px;background:var(--ink);color:var(--paper);display:inline-block}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.note{font-size:13px;color:var(--ink3);margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="logo.png" alt="ТАТЕВ"><span>AI МАСТЕРСКАЯ ТАТЕВ</span></div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <p class="eyebrow">Перед покупкой тарифа PRO</p>
+    <h1>Подойдёт ли <span class="it">ваша 1С</span> для агента?</h1>
+    <p class="lead">6 вопросов, 2 минуты. Модуль все проходят на учебной базе, а этот тест показывает, получится ли потом подключить вашу.</p>
+  </div>
+  <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+  <div id="app"></div>
+  <p class="note">Ответы никуда не отправляются, пока вы сами не нажмёте кнопку в конце.</p>
+</div>
+<script>
+const BOT='https://t.me/TatevProfbuh_bot';
+const Q=[
+ {q:'Какая у вас программа 1С?',h:'Шаблон бота сделан под 1С:Бухгалтерию предприятия 3.0.',o:[['1С:Бухгалтерия предприятия 3.0','y'],['УНФ, УТ, ЗУП или отраслевая','n'],['Не знаю','u']],tip:'Программа должна быть 1С:Бухгалтерия предприятия 3.0. Посмотреть: меню «Справка» → «О программе».'},
+ {q:'Где работает ваша база?',h:'Боту нужен доступ к базе через интернет.',o:[['42Clouds','y'],['1С:Фреш','y'],['На своём сервере с веб-публикацией','y'],['На компьютере или сервере без веб-публикации','n'],['Не знаю','u']],tip:'База на компьютере без веб-публикации не подключится. Нужен 42Clouds, 1С:Фреш или своя веб-публикация — её настраивает программист 1С.'},
+ {q:'Можно ли включить OData (стандартный интерфейс)?',h:'Через OData бот читает и создаёт документы. В 42Clouds и 1С:Фреш он включается в настройках.',o:[['Да, могу включить сам(а)','y'],['Да, через программиста или поддержку','y'],['Нет','n'],['Не знаю','u']],tip:'Нужно включить OData: в 42Clouds и Фреш — в настройках, на своём сервере — через программиста 1С.'},
+ {q:'Ваша конфигурация типовая?',h:'Сильные доработки меняют справочники и документы.',o:[['Типовая или почти без доработок','y'],['Сильно доработанная','n'],['Не знаю','u']],tip:'В доработанной конфигурации совместимость нужно проверить отдельно, на копии базы.'},
+ {q:'Есть права администратора в базе?',h:'Нужно создать отдельного пользователя для бота.',o:[['Да, у меня','y'],['Есть человек, который выдаст','y'],['Нет','n']],tip:'Нужен администратор базы, который создаст пользователя для бота с минимальными правами.'},
+ {q:'Есть ИП, юрлицо или самозанятость?',h:'Для регистрации бота в MAX.',o:[['Да','y'],['Нет','m']],tip:'Без статуса бота в MAX не зарегистрировать — на курсе дадим учебного бота.'}
+];
+let step=0, ans=[];
+const app=document.getElementById('app'), bar=document.getElementById('bar');
+function render(){
+  bar.style.width=(step/Q.length*100)+'%';
+  if(step>=Q.length) return result();
+  const x=Q[step];
+  app.innerHTML=`<div class="card"><p class="note">Вопрос ${step+1} из ${Q.length}</p><p class="q">${x.q}</p><p class="hint">${x.h}</p>
+  <div class="opts">${x.o.map((o,i)=>`<button data-i="${i}">${o[0]}</button>`).join('')}</div>
+  <div class="nav">${step?'<button id="back">← Назад</button>':'<span></span>'}<span></span></div></div>`;
+  app.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ans[step]=x.o[+b.dataset.i][1];step++;render();});
+  const bk=document.getElementById('back'); if(bk) bk.onclick=()=>{step--;render();};
+  app.querySelector('[data-i]').focus({preventScroll:true});
+}
+function result(){
+  const bad=Q.map((x,i)=>ans[i]==='n'||ans[i]==='u'?i:-1).filter(i=>i>=0);
+  const ok=bad.length===0;
+  const code='check1c_'+ans.join('');
+  app.innerHTML=`<div class="res ${ok?'ok':'maybe'}">
+   <p class="eyebrow">${ok?'Результат':'Нужно уточнить'}</p>
+   <h2>${ok?'Ваша 1С, скорее всего, подойдёт':'Пока есть вопросы к вашей базе'}</h2>
+   ${ok?`<p>По ответам база подходит под шаблон. На курсе сначала проходим модуль на учебной базе, затем подключаете свою — после проверки на копии.</p>${ans[5]==='m'?'<p>Для MAX дадим учебного бота.</p>':''}`
+       :`<p>Модуль вы пройдёте на учебной базе — знания и шаблон останутся. Чтобы подключить свою базу, нужно решить:</p><ul>${bad.map(i=>`<li>${Q[i].tip}</li>`).join('')}</ul>`}
+   <div class="btns"><a class="btn" href="${BOT}?start=${code}" target="_blank" rel="noopener">Отправить результат в бот</a><a class="btn alt" href="https://tatevprofbuh.github.io/practicom_AI/" target="_blank" rel="noopener">Программа и тарифы</a></div>
+   <p class="note">Бот откроется с вашим результатом — нажмите «Начать». Вопросы пишите мне в личные сообщения.</p>
+   <div class="nav"><button id="again">Пройти заново</button><span></span></div></div>`;
+  document.getElementById('again').onclick=()=>{step=0;ans=[];render();};
+}
+render();
+</script>
+</body>
+</html>
